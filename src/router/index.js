@@ -27,6 +27,26 @@ const router = createRouter({
       name: 'consultar-por-id',
       component: () => import('../views/ConsultarPorIdView.vue'),
     },
+    {
+      path: '/guardar',
+      name: 'guardar',
+      component: () => import('../views/GuardarView.vue'),
+    },
+    {
+      path: '/actualizar',
+      name: 'actualizar',
+      component: () => import('../views/ActualizarView.vue'),
+    },
+    {
+      path: '/actualizar-parcial',
+      name: 'actualizar-parcial',
+      component: () => import('../views/ActualizarParcialView.vue'),
+    },
+    {
+      path: '/borrar',
+      name: 'borrar',
+      component: () => import('../views/BorrarView.vue'),
+    },
   ],
 })
 
