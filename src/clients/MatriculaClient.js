@@ -1,65 +1,54 @@
 import axios from 'axios';
-import { obtenerToken } from './AuthorizationClient.js';
 
-const TOKEN = await obtenerToken();
-const URL = 'http://localhost:8081/matricula/api/v1.0/estudiantes';
+const API_URL = 'http://localhost:8081/matricula/api/v1.0';
 
-const ConsultarTodos = async () => {
-    console.log(`Obteniendo token: ${TOKEN}`);
-    const data = axios.get(URL, {headers:{Authorization: `Bearer ${TOKEN}`}}).then(response => response.data);
-    console.log(data);
-    return data;
+const apiClient = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+apiClient.interceptors.request.use(
+    (config) => {
+        const token = sessionStorage.getItem('jwt_token');
+        
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+export const ConsultarTodosFachada = async () => {
+    const response = await apiClient.get('/estudiantes');
+    return response.data;
 }
 
-const consutarPorId = async (id) => {
-    const data = axios.get(`${URL}/${id}`, {headers:{Authorization: `Bearer ${TOKEN}`}}).then(response => response.data);
-    console.log(data);
-    return data;
+export const ConsultarPorIdFachada = async (id) => {
+    const response = await apiClient.get(`/estudiantes/${id}`);
+    return response.data;
 }
 
-const guardar = async (body) => {
-    const data = axios.post(URL, body, {headers:{Authorization: `Bearer ${TOKEN}`}}).then(response => response.data);
-    console.log(data);
-    return data;
+export const GuardarFachada = async (body) => {
+    const response = await apiClient.post('/estudiantes', body);
+    return response.data;
 }
 
-const actualizar = async (id, body) => {
-    const data = axios.put(`${URL}/${id}`, body, {headers:{Authorization: `Bearer ${TOKEN}`}}).then(response => response.data);
-    console.log(data);
-    return data;
+export const ActualizarFachada = async (id, body) => {
+    const response = await apiClient.put(`/estudiantes/${id}`, body);
+    return response.data;
 }
 
-const actualizarParcial = async (id, body) => {
-    const data = axios.patch(`${URL}/${id}`, body, {headers:{Authorization: `Bearer ${TOKEN}`}}).then(response => response.data);
-    console.log(data);
-    return data;
+export const ActualizarParcialFachada = async (id, body) => {
+    const response = await apiClient.patch(`/estudiantes/${id}`, body);
+    return response.data;
 }
 
-const borrar = async (id) => {
-    axios.delete(`${URL}/${id}`, {headers:{Authorization: `Bearer ${TOKEN}`}}).then(response => response.data);
-    console.log(`Estudiante con id ${id} eliminado`);
-}
-
-export async function ConsultarTodosFachada() { 
-    return await ConsultarTodos(); 
-}
-
-export async function ConsultarPorIdFachada(id) { 
-    return await consutarPorId(id); 
-}
-
-export async function GuardarFachada(body) { 
-    return await guardar(body); 
-}
-
-export async function ActualizarFachada(id, body) { 
-    return await actualizar(id, body); 
-}
-
-export async function ActualizarParcialFachada(id, body) { 
-    return await actualizarParcial(id, body); 
-}
-
-export async function BorrarFachada(id) { 
-    await borrar(id); 
+export const BorrarFachada = async (id) => {
+    await apiClient.delete(`/estudiantes/${id}`);
 }

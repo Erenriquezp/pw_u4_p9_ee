@@ -1,7 +1,3 @@
-<script setup>
-import { RouterLink } from "vue-router";
-</script>
-
 <template>
   <header>
     <nav>
@@ -14,8 +10,34 @@ import { RouterLink } from "vue-router";
       <RouterLink to="/borrar">Borrar</RouterLink>
     </nav>
   </header>
-  <RouterView />
+  <div v-if="!estaAutenticado" class="loading">
+    Validando credenciales...
+  </div>
+
+  <RouterView v-else />
 </template>
+
+<script setup>
+import { onMounted, ref } from "vue"; 
+import { RouterLink, RouterView } from "vue-router";
+import { obtenerToken } from "./clients/AuthorizationClient"; 
+
+const estaAutenticado = ref(false);
+
+const loginAutomatico = async () => {
+  try {
+    await obtenerToken();
+    
+    estaAutenticado.value = true;
+  } catch (error) {
+    console.log("Error fatal de autenticación:", error);
+  }
+};
+
+onMounted(() => {
+  loginAutomatico();
+});
+</script>
 
 <style scoped>
 header {
