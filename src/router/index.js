@@ -89,22 +89,25 @@ const router = createRouter({
 
 /* Configuracion del Guardian */
 router.beforeEach((to, from, next) => {
+  // 1. Verificamos si la ruta necesita autorización
   if (to.meta.requiereAutorizacion) {
-    /* Si requiere autorizacion le envio a una pagina de login */
+    
+    // 2. Buscamos el token donde lo guardamos (SessionStorage)
     const token = sessionStorage.getItem('jwt_token');
-    const estaAutenticado = localStorage.getItem('estaAutenticado') === 'true';
-    if (!token && !estaAutenticado) {
-      console.log('Ruta protegida, se requiere autorizacion');
-      next( {name: 'login'} );
-    } else {
-      console.log('Ruta protegida, usuario autenticado');
+    
+    if (token) {
+      // Tiene token -> Pasa
       next();
+    } else {
+      // No tiene token -> Login
+      console.log('Acceso denegado. Redirigiendo a Login.');
+      next({ name: 'login' });
     }
+    
   } else {
     /* Si no requiere autorizacion, dejo pasar */
-    console.log('Ruta pública, no se requiere autorizacion');
     next();
   }
-})
+});
 
 export default router
