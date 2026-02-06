@@ -9,9 +9,14 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        requiereAutorizacion: true,
-        esPublica: false
+        requiereAutorizacion: false,
+        esPublica: true
       }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue')
     },
     {
       path: '/about',
@@ -30,7 +35,7 @@ const router = createRouter({
       name: 'consultar-todos',
       component: () => import('../views/ConsultarTodosView.vue'),
       meta: {
-        requiereAutorizacion: false,
+        requiereAutorizacion: true,
         esPublica: false
       }
     },
@@ -86,7 +91,15 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   if (to.meta.requiereAutorizacion) {
     /* Si requiere autorizacion le envio a una pagina de login */
-    console.log('Ruta protegida, se requiere autorizacion');
+    const token = sessionStorage.getItem('jwt_token');
+    const estaAutenticado = localStorage.getItem('estaAutenticado') === 'true';
+    if (!token && !estaAutenticado) {
+      console.log('Ruta protegida, se requiere autorizacion');
+      next( {name: 'login'} );
+    } else {
+      console.log('Ruta protegida, usuario autenticado');
+      next();
+    }
   } else {
     /* Si no requiere autorizacion, dejo pasar */
     console.log('Ruta pública, no se requiere autorizacion');

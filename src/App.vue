@@ -10,32 +10,25 @@
       <RouterLink to="/borrar">Borrar</RouterLink>
     </nav>
   </header>
-  <div v-if="!estaAutenticado" class="loading">
+  <div v-if="cargando" class="loading">
     Validando credenciales...
   </div>
 
-  <RouterView v-else />
+  <RouterView />
 </template>
 
 <script setup>
 import { onMounted, ref } from "vue"; 
 import { RouterLink, RouterView } from "vue-router";
-import { obtenerToken } from "./clients/AuthorizationClient"; 
 
 const estaAutenticado = ref(false);
-
-const loginAutomatico = async () => {
-  try {
-    await obtenerToken();
-    
-    estaAutenticado.value = true;
-  } catch (error) {
-    console.log("Error fatal de autenticación:", error);
-  }
-};
+const cargando = ref(true);
 
 onMounted(() => {
-  loginAutomatico();
+  const token = sessionStorage.getItem('jwt_token');
+  const flag = localStorage.getItem('estaAutenticado') === 'true';
+  estaAutenticado.value = !!token || flag;
+  cargando.value = false;
 });
 </script>
 
